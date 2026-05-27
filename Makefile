@@ -1,15 +1,23 @@
-.PHONY: post-products
+.PHONY: run-api run-consumer infra-up infra-down test lint build
 
-URL=http://localhost:8080/products
-DATA='{"name": "Product A", "price": 100}'
+run-api:
+	go run ./cmd/api
 
-post-products:
-	@start=$$(date +%s); \
-	for i in $$(seq 1 1000); do \
-		echo "Sending request $$i..."; \
-		curl -X POST $(URL) -H "Content-Type: application/json" -d $(DATA); \
-		echo ""; \
-	done; \
-	end=$$(date +%s); \
-	duration=$$((end - start)); \
-	echo "Total time taken: $$duration seconds"
+run-consumer:
+	go run ./cmd/consumer
+
+infra-up:
+	docker compose up -d
+
+infra-down:
+	docker compose down
+
+test:
+	go test ./...
+
+lint:
+	golangci-lint run ./...
+
+build:
+	go build ./cmd/api
+	go build ./cmd/consumer
